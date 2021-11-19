@@ -42,6 +42,7 @@ import struct
 import time
 import configparser
 from collections import OrderedDict
+from sbp import settings
 
 from sbp.client import Framer, Handler
 from sbp.logging import SBP_MSG_LOG
@@ -52,8 +53,10 @@ from sbp.settings import (
     MsgSettingsReadByIndexReq, MsgSettingsReadReq,
     MsgSettingsSave, MsgSettingsWrite)
 
-from piksi_tools import serial_link
-from piksi_tools import __version__ as VERSION
+# from piksi_tools import serial_link
+from serial_link import base_cl_options
+from serial_link import get_base_args_driver
+# from piksi_tools import __version__ as VERSION
 
 DEFAULT_READ_RETRIES = 5
 DEFAULT_CONFIRM_RETRIES = 2
@@ -238,6 +241,8 @@ class Settings(object):
         parser.optionxform = str
         with open(output, 'r') as f:
             parser.read_file(f)
+        # write "Config" to interface_mode on piksi
+        # self.write("ethernet")
         for section, settings in parser.items():
             for setting, value in settings.items():
                 self.write(section, setting, value, verbose=verbose)
@@ -315,8 +320,8 @@ def get_args(args=None):
     Get and parse arguments.
     """
     import argparse
-    parser = serial_link.base_cl_options()
-    parser.description = 'Piksi Settings Tool version ' + VERSION
+    parser = base_cl_options()
+    parser.description = 'Piksi Settings Tool version '
     parser.formatter_class = argparse.RawDescriptionHelpFormatter
     parser.epilog = ("Returns:\n"
                      "  0: Upon success\n"
@@ -369,7 +374,7 @@ def main(args=None):
     """
     args = get_args(args)
     command = args.command
-    driver = serial_link.get_base_args_driver(args)
+    driver = get_base_args_driver(args)
     with Handler(Framer(driver.read, driver.write, verbose=args.verbose)) as link:
         settings = Settings(link, timeout=args.timeout)
         with settings:
@@ -388,9 +393,12 @@ def main(args=None):
             elif command == 'write_from_file':
                 settings.write_from_file(args.filename, verbose=args.verbose)
             # If saving was requested, we have done a write command, and the write was requested, we save
-            if command.startswith("write") and args.save_after_write:
+            if str(command)[:5]==("write") and args.save_after_write:
                 print("Saving Settings to Flash.")
                 settings.save()
+
+            # try it here
+            print(settings.read_all(verbose=True))
 
 
 if __name__ == "__main__":

@@ -17,23 +17,23 @@ from __future__ import print_function
 import os
 import sys
 import time
-from monotonic import monotonic
+# from monotonic import monotonic
 
 import serial.tools.list_ports
 from sbp.client import Forwarder, Framer, Handler
-from sbp.client.drivers.cdc_driver import CdcDriver
-from sbp.client.drivers.pyftdi_driver import PyFTDIDriver
+# from sbp.client.drivers.cdc_driver import CdcDriver
+# from sbp.client.drivers.pyftdi_driver import PyFTDIDriver
 from sbp.client.drivers.pyserial_driver import PySerialDriver
-from sbp.client.drivers.file_driver import FileDriver, PlaybackFileDriver
-from sbp.client.loggers.json_logger import JSONLogger, JSONBinLogger, JSONLogIterator
-from sbp.client.loggers.null_logger import NullLogger
-from sbp.logging import SBP_MSG_LOG, SBP_MSG_PRINT_DEP, MsgLog
-from sbp.piksi import MsgReset
+# from sbp.client.drivers.file_driver import FileDriver, PlaybackFileDriver
+# from sbp.client.loggers.json_logger import JSONLogger, JSONBinLogger, JSONLogIterator
+# from sbp.client.loggers.null_logger import NullLogger
+# from sbp.logging import SBP_MSG_LOG, SBP_MSG_PRINT_DEP, MsgLog
+# from sbp.piksi import MsgReset
 
 from piksi_tools.utils import mkdir_p, get_tcp_driver, call_repeatedly
-from piksi_tools import __version__ as VERSION
+# from piksi_tools import __version__ as VERSION
 
-SERIAL_PORT = "/dev/ttyUSB0"
+SERIAL_PORT = "COM12"
 SERIAL_BAUD = 115200
 
 
@@ -58,7 +58,7 @@ def base_cl_options(override_arg_parse=None, add_help=True,
     else:
         parserclass = argparse.ArgumentParser
     parser = parserclass(
-        description="Swift Navigation SBP Client version " + VERSION, add_help=add_help)
+        description="Swift Navigation SBP Client version ", add_help=add_help)
     parser.add_argument(
         "-p", "--port", default=None, help="specify the serial port to use.")
     parser.add_argument(
@@ -189,7 +189,7 @@ def get_driver(use_ftdi=False,
     # HACK - if we are on OSX and the device appears to be a CDC device, open as a binary file
         for each in serial.tools.list_ports.comports():
             if port == each[0] and sys.platform == "darwin":
-                if each[1].startswith("Gadget Serial") or each[1].startswith("Piksi"):
+                if each[1][0:13]==("Gadget Serial") or each[1][:5]==("Piksi"):
                     print("Opening a file driver")
                     return CdcDriver(open(port, 'w+b', 0))
         return PySerialDriver(port, baud, rtscts=rtscts)
@@ -278,6 +278,7 @@ def swriter(link):
         link(sbp_msg)
 
     return scallback
+
 
 
 def run(args, link, stop_function=lambda: None):
