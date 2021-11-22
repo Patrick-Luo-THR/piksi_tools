@@ -53,6 +53,7 @@ def get_tcp_driver(host, port=None):
     '''
     try:
         if port is None:
+            host = "192.168.0.233:55555"
             host, port = host.split(':')
         return TCPDriver(host,
                          int(port),
