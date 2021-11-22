@@ -21,16 +21,16 @@ import time
 
 import serial.tools.list_ports
 from sbp.client import Forwarder, Framer, Handler
-# from sbp.client.drivers.cdc_driver import CdcDriver
-# from sbp.client.drivers.pyftdi_driver import PyFTDIDriver
+from sbp.client.drivers.cdc_driver import CdcDriver
+from sbp.client.drivers.pyftdi_driver import PyFTDIDriver
 from sbp.client.drivers.pyserial_driver import PySerialDriver
-# from sbp.client.drivers.file_driver import FileDriver, PlaybackFileDriver
-# from sbp.client.loggers.json_logger import JSONLogger, JSONBinLogger, JSONLogIterator
-# from sbp.client.loggers.null_logger import NullLogger
-# from sbp.logging import SBP_MSG_LOG, SBP_MSG_PRINT_DEP, MsgLog
-# from sbp.piksi import MsgReset
+from sbp.client.drivers.file_driver import FileDriver, PlaybackFileDriver
+from sbp.client.loggers.json_logger import JSONLogger, JSONBinLogger, JSONLogIterator
+from sbp.client.loggers.null_logger import NullLogger
+from sbp.logging import SBP_MSG_LOG, SBP_MSG_PRINT_DEP, MsgLog
+from sbp.piksi import MsgReset
 
-from piksi_tools.utils import mkdir_p, get_tcp_driver, call_repeatedly
+from utils import mkdir_p, get_tcp_driver, call_repeatedly
 # from piksi_tools import __version__ as VERSION
 
 SERIAL_PORT = "COM12"
@@ -333,8 +333,10 @@ def run(args, link, stop_function=lambda: None):
 
 def get_base_args_driver(args):
     driver = None
-    if getattr(args, 'tcp', None):
-        driver = get_tcp_driver(getattr(args, 'port', None))
+    # if getattr(args, 'tcp', None):
+    #     driver = get_tcp_driver(getattr(args, 'port', None))
+    if True:
+        driver = get_tcp_driver(55555)
     else:
         driver_kwargs = {}
         # unpack relevant args
@@ -378,6 +380,7 @@ def main(args):
                         skip_metadata=args.skip_metadata,
                         sender_id_filter_list=sender_id_filter)
     last_bytes_read = [0]
+    # print(args)
     if args.status:
         def print_io_data(last_bytes_read):
             # bitrate is will be kilobytes per second. 2 second period, 1024 bytes per kilobyte

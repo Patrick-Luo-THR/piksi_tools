@@ -361,7 +361,7 @@ def get_args(args=None):
 
     write = subparsers.add_parser('write_from_file', help='write settings file to device.')
     write.add_argument("filename", help="Name of the file to read from.")
-
+    
     if args is not None:
         return parser.parse_args(args)
     else:
